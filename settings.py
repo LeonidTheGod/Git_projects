@@ -17,6 +17,8 @@ VERY_DARK_ORANGE1 = 'DarkOrange4'
 BROWN = 'brown'
 ORANGE_RED = 'OrangeRed3'
 RED = 'Red3'
+BLUE = 'skyblue'
+BLUE_DEEP = 'blue'
 
 COLORS = {
     2: IVORY ,
@@ -30,4 +32,6 @@ COLORS = {
     512: BROWN,
     1024: ORANGE_RED,
     2048: RED
+    4096: BLUE
+    8192: BULE_DEEP
 }
