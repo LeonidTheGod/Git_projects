@@ -51,20 +51,28 @@ class Window:
 
 class Scrollbar:
 
-    def __init__(self, window, root, x, y, func):
+    def __init__(self, window, root):
+        global size, length
         self.window = window
         self.root = root
+        self.tmp_size = size
+        self.tmp_length = length
+
         lowFrame = tk.Frame(self.root)
-        lowFrame.place(x=x, y=y, width=150, height=20)
-
-        self.scrollbar = tk.Scrollbar(lowFrame, jump=0, width=16, orient="horizontal")
-        self.scrollbar.pack(side="top", fill=tk.X)
-
-        if func == "1":
-            self.scrollbar.config(command=self.change_size)
-        else:
-            self.scrollbar.config(command=self.change_number)
+        lowFrame.place(x=1300, y=300, width=150, height=20)
+        self.scrollbar1 = tk.Scrollbar(lowFrame, jump=0, width=16, orient="horizontal")
+        self.scrollbar1.pack(side="top", fill=tk.X)        
+        self.scrollbar1.config(command=self.change_size)
+        self.scrollbar1.set(float(size/1000*20), 0)
+        
+        lowFrame = tk.Frame(self.root)
+        lowFrame.place(x=1300, y=400, width=150, height=20)
+        self.scrollbar2 = tk.Scrollbar(lowFrame, jump=0, width=16, orient="horizontal")
+        self.scrollbar2.pack(side="top", fill=tk.X)
+        self.scrollbar2.config(command=self.change_number)
             
+        self.scrollbar2.set(float(length/1000*55), 0)
+
     def get_size_or_length(self, s_o_l, length, size):
         print("your in f")
         norme = 1000
@@ -88,23 +96,23 @@ class Scrollbar:
                 return length
 
 
-    def change_size(self, a=0, b=0):
-        global size, fib_list, length
+    def change_size(self, a, b):
+        global size, length
         size = int(float(b)*1000//20) + 1
     
         length = self.get_size_or_length("l", length, size)
         print(length, size)
-        self.scrollbar.set(float(b), 0)
+        self.scrollbar1.set(float(b), 0)
         self.window.spiral_canvas.delete(tk.ALL)
         self.window.create_fib_rects(all_fib_list[:length + 1], size)
 
     def change_number(self, a, b):
-        global length, size, fib_list
+        global size, length
         length = int(float(b)*1000//55)
 
         size = self.get_size_or_length("s", length, size)
         print(length, size)
-        self.scrollbar.set(float(b), 0)
+        self.scrollbar2.set(float(b), 0)
         self.window.spiral_canvas.delete(tk.ALL)
         self.window.create_fib_rects(all_fib_list[:length + 1], size)
 
@@ -114,19 +122,12 @@ def main():
     global length, size
     length = 3
     size = 15
-
     root = tk.Tk()
     # root.wm_state('zoomed')
     root.geometry("1500x500")
-
     fib_list = (get_fib_list(length))
-
     window = Window(root, fib_list, size)
-    bar1 = Scrollbar(window, root, 1300, 300, func="1")
-    bar2 = Scrollbar(window, root, 1300, 400, func="2")
-    bar1.scrollbar.set(float(size/1000*20), 0)
-    bar2.scrollbar.set(float(length/1000*55), 0)
-
+    Scrollbar(window, root)
 
     root.mainloop()
 
