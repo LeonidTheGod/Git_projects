@@ -16,16 +16,13 @@ def koh(n, size):
 
     koh(n - 1, size)
     turtle.right(60)
-
     koh(n - 1, size)
     turtle.left(120)
-
     koh(n - 1, size)
     turtle.right(60)
-
     koh(n - 1, size)
 
-n = 2
+n = 3
 try:
     size = 50/n
 except:
