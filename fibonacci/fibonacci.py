@@ -2,20 +2,20 @@ import math
 import tkinter as tk
 import json
 
-path = "D:\\Progs - Python\\Different\\fibonacci\\fibonacci.json"
+path = "fibonacci.json"
 data = json.load(open(path))
 all_fib_list = data["list"]
 
 def get_fib_list(length):
-    list_1 = all_fib_list[:length + 1]
-    return list_1
+    return all_fib_list[:length + 1] 
 
 class Window:
     def __init__(self, root, fib_list, size):
 
+        self.width_a = 2
         self.spiral_canvas = tk.Canvas(width=1600, height=800, bg="ivory")
         self.spiral_canvas.pack()
-        self.create_fib_rects(fib_list, size) 
+        self.create_fib_rects(fib_list, size)
 
     def get_list(self, r, q):
         
@@ -35,6 +35,7 @@ class Window:
         x = 760
         mult_list = [[mult, -mult], [mult, mult], [-mult, mult], [-mult, -mult]]
         middle_list = [[mult, 0], [0, mult], [-mult, 0], [0, -mult]]
+
         for c in fib_list[1::]:
             x1 = x + c * mult_list[counter][0]
             y1 = y + c * mult_list[counter][1]
@@ -42,7 +43,7 @@ class Window:
             list_1 = self.get_list(mult*c, counter)
             for i in range(0, len(list_1) - 2, 2):
                 self.spiral_canvas.create_line(x + list_1[i] + middle_list[counter][0]*c, y + list_1[i+1]+ middle_list[counter][1]*c,
-                    x + list_1[i+2] + middle_list[counter][0]*c, y + list_1[i+3]+ middle_list[counter][1]*c, width = 2)
+                    x + list_1[i+2] + middle_list[counter][0]*c, y + list_1[i+3]+ middle_list[counter][1]*c, width = self.width_a)
             x, y = x1, y1
             if counter != 3:
                 counter += 1
@@ -57,64 +58,77 @@ class Scrollbar:
         self.root = root
         self.tmp_size = size
         self.tmp_length = length
+        self.len_controller = 1
+        self.len_controller2 = 1
 
         lowFrame = tk.Frame(self.root)
-        lowFrame.place(x=1300, y=300, width=150, height=20)
+        lowFrame.place(x=1300, y=300, width=180, height=16)
         self.scrollbar1 = tk.Scrollbar(lowFrame, jump=0, width=16, orient="horizontal")
         self.scrollbar1.pack(side="top", fill=tk.X)        
         self.scrollbar1.config(command=self.change_size)
         self.scrollbar1.set(float(size/1000*20), 0)
         
         lowFrame = tk.Frame(self.root)
-        lowFrame.place(x=1300, y=400, width=150, height=20)
+        lowFrame.place(x=1300, y=350, width=180, height=16)
         self.scrollbar2 = tk.Scrollbar(lowFrame, jump=0, width=16, orient="horizontal")
         self.scrollbar2.pack(side="top", fill=tk.X)
-        self.scrollbar2.config(command=self.change_number)
-            
+        self.scrollbar2.config(command=self.change_length)
         self.scrollbar2.set(float(length/1000*55), 0)
+      
+        lowFrame = tk.Frame(self.root)
+        lowFrame.place(x=1300, y=400, width=180, height=16)
+        self.scrollbar3 = tk.Scrollbar(lowFrame, jump=0, width=16, orient="horizontal")
+        self.scrollbar3.pack(side="top", fill=tk.X)
+        self.scrollbar3.config(command=self.change_width)
+            
+    
+    def get_length(self, size):
+        i = 0
+        while all_fib_list[i] * size < 1000:
+            i += 1
+        return i - 1 
 
-    def get_size_or_length(self, s_o_l, length, size):
-        print("your in f")
-        norme = 1000
-        if s_o_l == "s":
-            if all_fib_list[length] * size <= norme:
-                return size
-            else:
-                size = 0
-                while all_fib_list[length] * size <= norme:
-                    size += 1
-                print("changeeeeeeeeeed", length, size)
-                return size
-        elif s_o_l == "l":
-            if all_fib_list[length] * size <= norme:
-                return length
-            else:
-                length = 2
-                while all_fib_list[length] * size <= norme:
-                    length += 1
-                print("changeeeeeeeeeed", length, size)
-                return length
-
+    def change_width(self, a, b):
+        global size, length
+        self.window.width_a = int(float(b)*1000//55)
+        self.scrollbar3.set(float(b), 0)
+        self.window.spiral_canvas.delete(tk.ALL)
+        self.window.create_fib_rects(get_fib_list(length), size)
 
     def change_size(self, a, b):
         global size, length
         size = int(float(b)*1000//20) + 1
-    
-        length = self.get_size_or_length("l", length, size)
-        print(length, size)
+        print(length)
+        if all_fib_list[length] * size > 1000 and self.len_controller:
+            self.tmp_length = length
+            self.len_controller = 0
+        elif all_fib_list[length] * size > 1000:
+            length = self.get_length(size)
+            self.window.spiral_canvas.delete(tk.ALL)
+            self.window.create_fib_rects(get_fib_list(length), size)
+        elif all_fib_list[length] * size < 1000:
+            if length < self.tmp_length:
+                length += 1
+            self.window.spiral_canvas.delete(tk.ALL)
+            self.window.create_fib_rects(get_fib_list(length), size)
         self.scrollbar1.set(float(b), 0)
-        self.window.spiral_canvas.delete(tk.ALL)
-        self.window.create_fib_rects(all_fib_list[:length + 1], size)
+        print(length, self.tmp_length, size)
 
-    def change_number(self, a, b):
+    def change_length(self, a, b):
         global size, length
         length = int(float(b)*1000//55)
 
-        size = self.get_size_or_length("s", length, size)
-        print(length, size)
+        if all_fib_list[length] * size > 1000 and self.len_controller2:
+            self.tmp_length = self.get_length(size)
+            self.len_controller2 = 0
+            self.window.create_fib_rects(get_fib_list(self.tmp_length), size)
+        elif all_fib_list[length] * size < 1000:
+            self.tmp_length = 0
+            self.len_controller2 = 1
+            self.window.spiral_canvas.delete(tk.ALL)
+            self.window.create_fib_rects(get_fib_list(length), size)
         self.scrollbar2.set(float(b), 0)
-        self.window.spiral_canvas.delete(tk.ALL)
-        self.window.create_fib_rects(all_fib_list[:length + 1], size)
+        print(length, self.tmp_length, size)
 
 
 
@@ -123,8 +137,8 @@ def main():
     length = 3
     size = 15
     root = tk.Tk()
-    # root.wm_state('zoomed')
-    root.geometry("1500x500")
+    root.wm_state('zoomed')
+    # root.geometry("1500x500")
     fib_list = (get_fib_list(length))
     window = Window(root, fib_list, size)
     Scrollbar(window, root)
