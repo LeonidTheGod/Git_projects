@@ -93,11 +93,15 @@ class Scrollbar:
         self.window.width_a = int(float(b)*1000//55)
         self.scrollbar3.set(float(b), 0)
         self.window.spiral_canvas.delete(tk.ALL)
-        self.window.create_fib_rects(get_fib_list(length), size)
+        if self.tmp_length != 0:
+            self.window.create_fib_rects(get_fib_list(self.tmp_length), size)
+        else:
+            self.window.create_fib_rects(get_fib_list(length), size)
+
 
     def change_size(self, a, b):
         global size, length
-        size = int(float(b)*1000//20) + 1
+        size = int(float(b)*1000//15) + 1
         print(length)
         if all_fib_list[length] * size > 1000 and self.len_controller:
             self.tmp_length = length
