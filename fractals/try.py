@@ -1,0 +1,35 @@
+import turtle
+import sys
+
+sys.setrecursionlimit(2500)
+turtle.speed(100)
+turtle.penup()
+# turtle.hideturtle()
+# turtle.goto(-200, -300)
+turtle.left(90)
+turtle.pendown()
+
+def koh(n, size):
+    if n == 0:
+        turtle.fd(size)
+        return
+
+    koh(n - 1, size)
+    turtle.right(85)
+    koh(n - 1, size) 
+    turtle.left(170)
+    koh(n - 1, size)    
+    turtle.right(85)
+    koh(n - 1, size)
+
+
+n = 4
+try:
+    size = 30/n
+except:
+    size = 10
+for i in range(4):
+    koh(n, size=size)
+    turtle.right(90)
+
+turtle.exitonclick()
