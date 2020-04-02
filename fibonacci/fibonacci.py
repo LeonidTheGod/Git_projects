@@ -1,6 +1,7 @@
 import math
 import tkinter as tk
 import json
+import random
 
 path = "fibonacci.json"
 data = json.load(open(path))
@@ -12,10 +13,18 @@ def get_fib_list(length):
 class Window:
     def __init__(self, root, fib_list, size):
 
+        self.root = root
         self.width_a = 2
         self.spiral_canvas = tk.Canvas(width=1600, height=800, bg="ivory")
+        self.r_button = tk.Button(root, text="Random", command=self.random_spiral)
+        self.r_button.place(x=1300, y = 450)
         self.spiral_canvas.pack()
         self.create_fib_rects(fib_list, size)
+    
+    def random_spiral(self):
+        self.spiral_canvas.delete(tk.ALL)
+        fib_list = [random.randint(1,20) for i in range(15)]
+        self.create_fib_rects(fib_list, size, counter=random.randint(0, 3))
 
     def get_list(self, r, q):
         
@@ -29,17 +38,15 @@ class Window:
             list_1.append(y)
         return(list_1)
     
-    def create_fib_rects(self, fib_list, mult):
-        counter = 0
-        y = 370
-        x = 760
+    def create_fib_rects(self, fib_list, mult, counter=0, y=370, x=760):
+        
         mult_list = [[mult, -mult], [mult, mult], [-mult, mult], [-mult, -mult]]
         middle_list = [[mult, 0], [0, mult], [-mult, 0], [0, -mult]]
 
         for c in fib_list[1::]:
             x1 = x + c * mult_list[counter][0]
             y1 = y + c * mult_list[counter][1]
-            self.spiral_canvas.create_rectangle(x, y, x1, y1, outline = "gray")
+            # self.spiral_canvas.create_rectangle(x, y, x1, y1, outline = "gray")
             list_1 = self.get_list(mult*c, counter)
             for i in range(0, len(list_1) - 2, 2):
                 self.spiral_canvas.create_line(x + list_1[i] + middle_list[counter][0]*c, y + list_1[i+1]+ middle_list[counter][1]*c,
@@ -66,7 +73,7 @@ class Scrollbar:
         self.scrollbar1 = tk.Scrollbar(lowFrame, jump=0, width=16, orient="horizontal")
         self.scrollbar1.pack(side="top", fill=tk.X)        
         self.scrollbar1.config(command=self.change_size)
-        self.scrollbar1.set(float(size/1000*20), 0)
+        self.scrollbar1.set(float(size/1000*15), 0)
         
         lowFrame = tk.Frame(self.root)
         lowFrame.place(x=1300, y=350, width=180, height=16)
@@ -86,7 +93,7 @@ class Scrollbar:
         i = 0
         while all_fib_list[i] * size < 1000:
             i += 1
-        return i - 1 
+        return i - 1
 
     def change_width(self, a, b):
         global size, length
@@ -142,7 +149,6 @@ def main():
     size = 15
     root = tk.Tk()
     root.wm_state('zoomed')
-    # root.geometry("1500x500")
     fib_list = (get_fib_list(length))
     window = Window(root, fib_list, size)
     Scrollbar(window, root)
