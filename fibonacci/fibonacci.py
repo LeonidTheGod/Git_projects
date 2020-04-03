@@ -3,7 +3,7 @@ import tkinter as tk
 import json
 import random
 
-path = "fibonacci.json"
+path = "C:\\Users\\kings\\Desktop\\PythonRepo\\fibonacci\\fibonacci.json"
 data = json.load(open(path))
 all_fib_list = data["list"]
 
