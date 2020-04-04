@@ -11,9 +11,9 @@ class Ball:
         self.y = 0
         self.angle = 0
         self.size = 20
-        self.death_count = 5
-        # self.gravity = 1
-        # self.gravityx = 1/2
+        self.death_count = 3
+        self.gravity = 1 * 0.01
+        self.gravityx = 1 * 0.01
         self.id = self.window.basket_canvas.create_oval(-10, -10, -10, -10, fill="red")
 
     def create_ball(self, x=100, y=400, angle=10, vx=1, vy=1):
@@ -38,25 +38,18 @@ class Ball:
             self.death_count -= 1
 
         if not self.death_count:
-            print("ball died")
             balls.remove(ball_object)
             self.window.basket_canvas.delete(self.id)
+            return
 
-            
-        # elif self.count <= 0 and self.count >= -10:
-        #     self.vy = 0
-        #     self.vx = 0
-        #     self.count -= 2
-        # else:
-        #     self.window.basket_canvas.move(self.id)
-        # if self.count > 0:
-        #     self.vy -= self.gravity
-        # if self.vx > 1:
-        #     if self.count != 3:
-        #         self.vx -= self.gravityx / 2
-        #     else:
-        #         self.vx -= self.gravityx / 4
-        # self.window.basket_canvas.update()
+        else:
+            self.vy -= self.gravity
+        if self.vx > 1:
+            if self.death_count != 3:
+                self.vx -= self.gravityx / 2
+            else:
+                self.vx -= self.gravityx / 4
+        self.window.basket_canvas.update()
             
 
 
@@ -72,7 +65,7 @@ class Window:
 
 
 class Arrow:
-    def __init__(self, window, ball):
+    def __init__(self, window):
         self.window = window
         self.position = [110, 410]
         self.arrow = window.basket_canvas.create_line(*self.position, self.position[0] + 20, self.position[1] - 20, fill='skyblue',
@@ -84,55 +77,77 @@ class ControlManager():
     def __init__(self, root, window, arrow):
         self.window = window
         self.balls = []
+        self.a_x = arrow.position[0] + 20
+        self.a_y = arrow.position[1] - 20
         self.arrow = arrow
         self.moving_now = None
         self.size_of_moving_obj = 0
 
         # window.r_button.bind("<1>", self.ball.create_ball)
         root.bind("<ButtonPress-1>", self.on_start)
-        root.bind("<B1-Motion>", self.on_drag)
+        root.bind("<Motion>", self.on_drag)
         root.bind("<ButtonRelease-1>", self.on_drop)
+    
+    def get_ax_ay(self, x, y):
+        stop_x = 1300*2
+        stop_y = 1000
+        
+        if x < self.arrow.position[0]:
+            ev_x = self.arrow.position[0] - x
+            self.a_x = self.arrow.position[0] - (ev_x - ev_x * (ev_x / stop_x))
+        elif x > self.arrow.position[0]:
+            ev_x = x - self.arrow.position[0]
+            self.a_x = (ev_x - ev_x * (ev_x / stop_x)) + self.arrow.position[0]
+
+        if y < self.arrow.position[1]:
+            ev_y = self.arrow.position[1] - y
+            self.a_y = self.arrow.position[1] - (ev_y - ev_y * (ev_y / stop_y))   
+        elif y > self.arrow.position[1]:
+            ev_y = y - self.arrow.position[1]
+            self.a_y = (ev_y - ev_y * (ev_y / stop_y)) + self.arrow.position[1]        
 
     def on_start(self, event):
-        pass
+        self.get_ax_ay(event.x, event.y)
+        self.window.basket_canvas.coords(self.arrow.arrow, *self.arrow.position, self.a_x, self.a_y)
 
     def on_drag(self, event):
-        self.window.basket_canvas.coords(self.arrow.arrow, *self.arrow.position, event.x, event.y)
+        print(event.x, event.y)
+        self.get_ax_ay(event.x, event.y)
+        self.window.basket_canvas.coords(self.arrow.arrow, *self.arrow.position, self.a_x, self.a_y)
 
     def on_drop(self, event):
-        b = event.y - self.arrow.position[1]
-        c = event.x - self.arrow.position[0]
-        print(f"{c} = {event.x} - {self.arrow.position[1]}")
+        b = self.a_y - self.arrow.position[1]
+        c = self.a_x - self.arrow.position[0]
         a = math.sqrt(b**2 + c**2)
         angle = math.degrees(math.asin(b/a))
         vx = c / 100
         vy = -b / 100
-        self.window.basket_canvas.coords(self.arrow.arrow, *self.arrow.position, self.arrow.position[0]+20, self.arrow.position[1]-20)
         ball = Ball(self.window)
         balls.append(ball)
         ball.create_ball(angle=angle, vx=vx, vy=vy)
-        new_game(balls, self.window)
+        move(balls, self.window)
+        self.window.basket_canvas.update()
+
+        
 
 
-def new_game(balls, window):
+def move(balls, window):
     while balls:
         for ball in balls:
             ball.move(ball)
-            window.basket_canvas.update()
-    print("no balls")
+        time.sleep(0.0001)
+
 
 def main():
     global balls
 
     root = tk.Tk()
-    root.geometry("1500x500")
-    # root.wm_state("zoomed")
+    # root.geometry("1500x500")
+    root.wm_state("zoomed")
 
     balls = []
     window = Window(root)
-    ball = Ball(window)
-    ball.create_ball(1)
-    arrow = Arrow(window, ball)
+    arrow = Arrow(window)
     ControlManager(root, window, arrow)
 
     root.mainloop()
